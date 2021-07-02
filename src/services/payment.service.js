@@ -79,18 +79,14 @@ export default class PaymentService {
     }
 
     validateWithLuhn = (digits) => {
-        const doubleEveryOtherDigitsFromRight = [];
-        let doubleDigit = false;
-        for( let ind = digits.length -1; ind >= 0; ind--){
-            let digit = digits[ind];
-            if(doubleDigit){
-                if ((digit *= 2) > 9) {
-                    digit -= 9;
+        const doubleEveryOtherDigitsFromRight = digits.reverse().map( (digit, ind, arr) => {
+            if(ind % 2 === 1) {
+                if((digit*=2)>9) {
+                    digit-=9;
                 }
             }
-            doubleEveryOtherDigitsFromRight.push(digit);
-            doubleDigit = !doubleDigit;
-        }
+            return +digit;
+        });
 
         const totalOfDigits = doubleEveryOtherDigitsFromRight.reduce( (currentDigit, nextDigit) => {
             return currentDigit + nextDigit;
