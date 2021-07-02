@@ -1,5 +1,5 @@
 {
-  "name": "checker",
+  "name": "card-validator",
   "version": "1.0.0",
   "description": "A simple Node.js based application to validate credit card info",
   "type": "module",

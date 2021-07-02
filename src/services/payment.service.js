@@ -70,8 +70,14 @@ export default class PaymentService {
         return (((phoneNumber.startsWith('234') && phoneNumber.length === 13) || (phoneNumber.startsWith('0') && phoneNumber.length === 11)) && !isNaN(+phoneNumber))
     }
 
-    validateCVV = (CVV) => {
+    validateCVV = (CVV, cardType) => {
         // use card type and length of CVV
+        console.log('CVV length: ', CVV.length, CVV)
+        if((['Visa', 'Mastercard', 'Discover', 'Diners Club Or Carte Blanche', 'Unknown'].includes(cardType) && CVV.length !== 3) || (cardType === 'American Express' && CVV.length !== 4)) {
+            return false;
+        }
+        return true;
+
     }
 
     validateWithLuhn = (digits) => {
@@ -103,7 +109,7 @@ export default class PaymentService {
     }
 
     validateCardDetails(cardData) {
-        const {CCNum, ExpiryDate, Email, Phone, CVV} = cardData;
+        const {CCNum, ExpiryDate, Email, Phone, CVV2} = cardData;
         const cardType = this.detectCardType(CCNum);
         const isValidCardNumber = this.validateCardNumber(CCNum);
         if (!isValidCardNumber) {
@@ -140,7 +146,7 @@ export default class PaymentService {
             }
         }
 
-        /*const cvvIsValid = this.validateCVV(CVV)
+        const cvvIsValid = this.validateCVV(CVV2, cardType)
 
         if (!cvvIsValid) {
             return {
@@ -148,14 +154,14 @@ export default class PaymentService {
                 error: true,
                 code: 400
             }
-        }*/
+        }
 
         return {
             message: 'Validation successful',
             error: false,
             code: 200,
             data: {
-                validation: true,
+                valid: true,
                 cardType
             }
         }
