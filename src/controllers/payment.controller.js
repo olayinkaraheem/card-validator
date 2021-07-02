@@ -28,7 +28,7 @@ export default class PaymentController {
         const validationResponse = this.paymentService.validateCardDetails(body, authentication.data);
 
         if(validationResponse.error){
-            return res.status(validationResponse.code).send({error: validationResponse.message})
+            return res.status(validationResponse.code).send({valid: false, error: validationResponse.message})
         }
 
         return res.status(validationResponse.code).send(validationResponse.data)
