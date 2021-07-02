@@ -25,7 +25,7 @@ export default class PaymentController {
         if(this.requestIsXML(req)) {
             body = Object.values(req.body)[0];
         }
-        const validationResponse = this.paymentService.validateCardDetails(body);
+        const validationResponse = this.paymentService.validateCardDetails(body, authentication.data);
 
         if(validationResponse.error){
             return res.status(validationResponse.code).send({message: validationResponse.message})

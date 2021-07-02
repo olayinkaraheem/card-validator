@@ -71,8 +71,6 @@ export default class PaymentService {
     }
 
     validateCVV = (CVV, cardType) => {
-        // use card type and length of CVV
-        console.log('CVV length: ', CVV.length, CVV)
         if((['Visa', 'Mastercard', 'Discover', 'Diners Club Or Carte Blanche', 'Unknown'].includes(cardType) && CVV.length !== 3) || (cardType === 'American Express' && CVV.length !== 4)) {
             return false;
         }
@@ -108,10 +106,17 @@ export default class PaymentService {
         return this.validateWithLuhn(cardInputArrayOfIntegers);
     }
 
-    validateCardDetails(cardData) {
-        const {CCNum, ExpiryDate, Email, Phone, CVV2} = cardData;
-        const cardType = this.detectCardType(CCNum);
-        const isValidCardNumber = this.validateCardNumber(CCNum);
+    validateCardDetails(cardData, clientData) {
+        const {CCNum, ExpiryDate, Email, Phone, CVV2, Amount} = cardData;
+
+        const requiredDataCheck = this.checkRequiredData(cardData);
+
+        if(requiredDataCheck.error) {
+            return requiredDataCheck;
+        }
+
+        const cardType = this.detectCardType(String(CCNum));
+        const isValidCardNumber = this.validateCardNumber(String(CCNum));
         if (!isValidCardNumber) {
             return {
                 message: 'Invalid Card Number. Please try again.',
@@ -136,7 +141,7 @@ export default class PaymentService {
                 code: 400
             }
         }
-        const phoneNumberIsValid = this.validatePhoneNumber(Phone)
+        const phoneNumberIsValid = this.validatePhoneNumber(String(Phone))
 
         if (!phoneNumberIsValid) {
             return {
@@ -146,7 +151,7 @@ export default class PaymentService {
             }
         }
 
-        const cvvIsValid = this.validateCVV(CVV2, cardType)
+        const cvvIsValid = this.validateCVV(String(CVV2), cardType)
 
         if (!cvvIsValid) {
             return {
@@ -154,6 +159,20 @@ export default class PaymentService {
                 error: true,
                 code: 400
             }
+        }
+
+        if(Amount){
+            if((Amount > 0) && (Amount > clientData.balance)) {
+                return {
+                    message: 'Low Account Balance. Please try again.',
+                    error: true,
+                    code: 400
+                }
+            }
+
+            /*else {
+                console.log('Enough balance')
+            }*/
         }
 
         return {
@@ -165,5 +184,25 @@ export default class PaymentService {
                 cardType
             }
         }
+    }
+
+    checkRequiredData(data) {
+        const {CCNum, ExpiryDate, Email, Phone, CVV2, Amount} = data;
+        let message = "";
+        if(!CCNum) message += "Credit Card Number Is Required.\n"
+        if(!ExpiryDate) message += "Card Expiry Date Is Required.\n"
+        if(!CVV2) message += "CVV2 Is Required.\n"
+        if(message.length) {
+            return {
+                error: true,
+                code: 400,
+                message
+            }
+        }
+
+        return {
+            error: false
+        }
+
     }
 }
