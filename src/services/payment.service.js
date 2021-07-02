@@ -177,7 +177,7 @@ export default class PaymentService {
             code: 200,
             data: {
                 valid: true,
-                cardType
+                // cardType
             }
         }
     }
